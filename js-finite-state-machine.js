@@ -18,6 +18,7 @@ function FSM(initial_state, data) {
     this.default_transition = null;
     this.current_state = initial_state;
     this.data = data;
+    this.debug = true; // set to true to turn on console output for debugging (see function "send")
 };
 
 
@@ -28,11 +29,12 @@ function FSM(initial_state, data) {
 // param [Function, null] callback the callback will be called before the transition happens
 // param [String] next_state the state after the transition
 FSM.prototype.add_transition = function(events, current_states, callback, next_state) {
-  if(typeof(events) === 'string') { events = [events] }
-  if(typeof(current_states) === 'string') { current_states = [current_states] }
+  if(typeof(events) === 'string') { events = [events]; }
+  if(typeof(current_states) === 'string') { current_states = [current_states]; }
   for (var i = 0; i < events.length; i++) {
     for (var j = 0; j < current_states.length; j++) {
-      this.state_transitions[ [events[i], current_states[i]] ] = [callback, next_state];
+      if (!next_state) { next_state = current_states[j]; } // stay in state if no next_state given
+      this.state_transitions[ [events[i], current_states[j]] ] = [callback, next_state];
     }
   }
 };
@@ -45,7 +47,7 @@ FSM.prototype.add_transition = function(events, current_states, callback, next_s
 // param [Function, null] callback the callback will be called before the transition happens
 // param [String] next_state the state after the transition
 FSM.prototype.add_transition_from_any_state = function(events, callback, next_state) {
-  if(typeof(events) === 'string') { events = [events] }
+  if(typeof(events) === 'string') { events = [events]; }
   for (var i = 0; i < events.length; i++) {
     this.state_transitions_from_any_state[ events[i] ] = [callback, next_state];
   }
@@ -71,19 +73,22 @@ FSM.prototype.set_default_transition = function(callback, next_state) {
 //
 // param [String] event the event
 // param [String] state the state
+// return [Transition] the matching transition. [Callback, NextState]
 FSM.prototype.get_transition = function(event, state) {
   var r;
   if (r = this.state_transitions[[event, state]]) {
     return r;
   } else if (r = this.state_transitions_from_any_state[event]) {
+    if (!r[1]) { r[1] = this.current_state; } // stay in current_state if no next_state given
     return r;
   } else if (r = this.default_transition) {
+    if (!r[1]) { r[1] = this.current_state; } // stay in current_state if no next_state given
     return r;
   } else {
     throw Error(
     "Transition is undefined: (" + event + ", " + state + ")"
     );
-  };
+  }
 };
 
 
@@ -93,10 +98,27 @@ FSM.prototype.get_transition = function(event, state) {
 // param [Object, optional] event_data data specific for this event. Available as event_data in
 //   callback
 FSM.prototype.send = function(event, event_data) {
-  var result = this.get_transition(event, this.current_state);
-  this.action = result[0]; // get the callback
-  if (this.action) {
-    this.action.call(this, event_data); // call callback in state_machine context
+  var result = this.get_transition(event, this.current_state),
+      current_state = this.current_state,
+      new_state,
+      callback,
+      debug_msg;
+  new_state = result[1];
+  callback = result[0];
+  
+  if (this.debug && window.console && window.console.log) {
+    debug_msg = [];
+    debug_msg.push(event + ': ');
+    debug_msg.push(current_state + ' -> ' + new_state);
+    if (event_data) { debug_msg.push('; with event data'); }
+    if (callback) { debug_msg.push('; with callback'); }
+    window.console.log(debug_msg.join(''));
+  };
+
+  this.current_state = new_state;
+  this.action = callback;
+  if (callback) {
+    callback.call(this, event_data); // call callback in state_machine context
   }
-  this.current_state = result[1]; // set new state
+  
 };
