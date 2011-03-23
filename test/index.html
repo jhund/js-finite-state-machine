@@ -6,22 +6,42 @@
     <script type="text/javascript" src="qunit.js"></script>
     <script type="text/javascript">
       // Test data
-      var initial_state = "initial",
-          state_machine_data = { name: "State machine's name" };
+      var initial_state = "initial state",
+          int_state_a = "intermediate state a",
+          int_state_b = "intermediate state b",
+          final_state = "final state",
+          event_1 = "Event 1",
+          event_2 = "Event 2",
+          event_3 = "Event 3",
+          callback_1_marker = "One was here",
+          callback_2_marker = "Two was here",
+          callback_3_marker = "Three was here",
+          state_machine_data = { name: "State machine's name", callback_markers: [] };
       
       // State machine under test
       var fsm = null;
       
+      var init_fsm = function() {
+        var r = new FSM(initial_state, state_machine_data);
+        var cb = function(a_marker) { this.data.callback_markers.push(a_marker) };
+        r.add_transition(event_1, initial_state, null, int_state_a);
+        return r;
+      }
+      
       // QUnit tests
       module("A Brand New State Machine");
-      test("has the correct initial settings", function() {
-        fsm = new FSM(initial_state, state_machine_data);
-        expect(5);
-        equals(fsm.current_state, initial_state, 'Expected "' + initial_state + '", was ' + fsm.current_state);
-        equals(fsm.state_transitions, {}, 'Expected {}, was ' + fsm.state_transitions);
-        equals(fsm.state_transitions_from_any_state, {}, 'Expected {}, was ' + fsm.state_transitions_from_any_state);
-        equals(fsm.default_transition, {}, 'Expected null, was ' + fsm.default_transition);
-        equals(fsm.data, state_machine_data, 'Expected "' + state_machine_data + '", was ' + fsm.data);
+      test("has the correct initial state", function() {
+        fsm = init_fsm();
+        expect(1);
+        equal(fsm.current_state, initial_state, 'Expected "' + initial_state + '", was ' + fsm.current_state);
+      });
+      
+      module("Successful State Transitions")
+      test("responds to " + event_1, function() {
+        fsm = init_fsm();
+        expect(1);
+        fsm.send(event_1);
+        equal(fsm.current_state, int_state_a, 'Expected "' + int_state_a + '", was ' + fsm.current_state);
       });
     </script>
     <title>js-finite-state-machine tests</title>

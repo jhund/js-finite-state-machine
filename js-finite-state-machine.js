@@ -32,7 +32,7 @@ FSM.prototype.add_transition = function(events, current_states, callback, next_s
   if(typeof(current_states) === 'string') { current_states = [current_states] }
   for (var i = 0; i < events.length; i++) {
     for (var j = 0; j < current_states.length; j++) {
-      this.state_transitions[ [event_list[i], state_list[i]] ] = [callback, next_state];
+      this.state_transitions[ [events[i], current_states[i]] ] = [callback, next_state];
     }
   }
 };
