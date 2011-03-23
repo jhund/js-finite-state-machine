@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <link rel="stylesheet" href="qunit.css" type="text/css">
+    <script type="text/javascript" src="../js-finite-state-machine.js"></script>
+    <script type="text/javascript" src="qunit.js"></script>
+    <script type="text/javascript">
+      // Test data
+      var initial_state = "initial",
+          state_machine_data = { name: "State machine's name" };
+      
+      // State machine under test
+      var fsm = null;
+      
+      // QUnit tests
+      module("A Brand New State Machine");
+      test("has the correct initial settings", function() {
+        fsm = new FSM(initial_state, state_machine_data);
+        expect(5);
+        equals(fsm.current_state, initial_state, 'Expected "' + initial_state + '", was ' + fsm.current_state);
+        equals(fsm.state_transitions, {}, 'Expected {}, was ' + fsm.state_transitions);
+        equals(fsm.state_transitions_from_any_state, {}, 'Expected {}, was ' + fsm.state_transitions_from_any_state);
+        equals(fsm.default_transition, {}, 'Expected null, was ' + fsm.default_transition);
+        equals(fsm.data, state_machine_data, 'Expected "' + state_machine_data + '", was ' + fsm.data);
+      });
+    </script>
+    <title>js-finite-state-machine tests</title>
+  </head>
+  <body>
+    <h1 id="qunit-header">js-finite-state-machine tests</h1>
+    <h2 id="qunit-banner"></h2>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+  </body>
+</html>
