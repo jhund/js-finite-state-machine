@@ -12,9 +12,9 @@
           reset_state = "Reset",
           running_state = "Running",
           stopped_state = "Stopped",
-          power_button = "Power Button",
-          start_stop_button = "Start/Stop Button",
-          reset_button = "Reset Button",
+          power_button = "Press Power Button",
+          start_stop_button = "Press Start/Stop Button",
+          reset_button = "Press Reset Button",
           display_off = "blank",
           display_reset = "00:00:00",
           display_running = "00:01:RR",
@@ -26,7 +26,10 @@
       
       // Instantiates a new FSM
       var fsm_factory = function() {
-        var r = new FSM(initial_state, state_machine_data);
+        var r = new FSM(
+          initial_state,
+          { name: state_machine_data.name, display: state_machine_data.display }
+        );
         // "specific" transitions
         r.add_transition(power_button, off_state, function() { this.send(reset_button); }, on_state);
         r.add_transition(reset_button, [on_state, stopped_state], function() { this.data.display = display_reset; }, reset_state);
