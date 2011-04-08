@@ -18,7 +18,7 @@ function FSM(initial_state, data) {
     this.default_transition = null;
     this.current_state = initial_state;
     this.data = data;
-    this.debug = true; // set to true to turn on console output for debugging (see function "send")
+    this.debug = true; // set to true to turn on console output for debugging (see function "send_event")
 };
 
 
@@ -97,7 +97,7 @@ FSM.prototype.get_transition = function(event, state) {
 // param [String] event the event to send to the state machine
 // param [Object, optional] event_data data specific for this event. Available as event_data in
 //   callback
-FSM.prototype.send = function(event, event_data) {
+FSM.prototype.send_event = function(event, event_data) {
   var result = this.get_transition(event, this.current_state),
       current_state = this.current_state,
       new_state,

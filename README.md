@@ -34,7 +34,7 @@ stop watch that can be powered on/off, reset, started and stopped.
     fsm.add_transition(
       "Press Power Button",
       "Power Off",
-      function() { this.send("Press Reset Button"); },
+      function() { this.send_event("Press Reset Button"); },
       "Power On"
     );
     // This transition handles the same event for two different current states
@@ -77,31 +77,31 @@ stop watch that can be powered on/off, reset, started and stopped.
 
 Once the fsm is initialized, you can start using it:
 
-    fsm.send("Press Power Button"); // Power it on
+    fsm.send_event("Press Power Button"); // Power it on
     fsm.current_state // "Reset"
     fsm.data.display // "00:00:00"
     
-    fsm.send("Press Start/Stop Button"); // Start timer
+    fsm.send_event("Press Start/Stop Button"); // Start timer
     fsm.current_state // "Running"
     fsm.data.display // "00:01:RR"
     
-    fsm.send("Press Start/Stop Button"); // Stop timer
+    fsm.send_event("Press Start/Stop Button"); // Stop timer
     fsm.current_state // "Stopped"
     fsm.data.display // "00:03:34"
 
-    fsm.send("Press Start/Stop Button"); // Restart timer
+    fsm.send_event("Press Start/Stop Button"); // Restart timer
     fsm.current_state // "Running"
     fsm.data.display // "00:01:RR"
     
-    fsm.send("Press Start/Stop Button"); // Stop timer
+    fsm.send_event("Press Start/Stop Button"); // Stop timer
     fsm.current_state // "Stopped"
     fsm.data.display // "00:03:34"
 
-    fsm.send("Press Reset Button"); // Reset timer
+    fsm.send_event("Press Reset Button"); // Reset timer
     fsm.current_state // "Reset"
     fsm.data.display // "00:00:00"
 
-    fsm.send("Press Power Button"); // Power it off
+    fsm.send_event("Press Power Button"); // Power it off
     fsm.current_state // "Power Off"
     fsm.data.display // "blank"
 
@@ -121,7 +121,7 @@ Concepts
 * FSM: a [finite state machine](http://en.wikipedia.org/wiki/Finite-state_machine). You can have
   multiple FMSs at the same time. Just instantiate each one with var f = new FSM(...).
 * State: The FSM is in one state at a time. You get it via f.current_state as string.
-* Event: You can send an event to your FSM to trigger a state transition: f.send("Event Name"). If
+* Event: You can send an event to your FSM to trigger a state transition: f.send_event("Event Name"). If
   you have specified a transition for the given event and current state, the FSM will perform a
   successful transition. Otherwise it will throw a "Transition is undefined" error.
 * Transition: Given a current_state and an event, your FSM will transition according to the

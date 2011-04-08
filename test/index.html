@@ -31,7 +31,7 @@
           { name: state_machine_data.name, display: state_machine_data.display }
         );
         // "specific" transitions
-        r.add_transition(power_button, off_state, function() { this.send(reset_button); }, on_state);
+        r.add_transition(power_button, off_state, function() { this.send_event(reset_button); }, on_state);
         r.add_transition(reset_button, [on_state, stopped_state], function() { this.data.display = display_reset; }, reset_state);
         r.add_transition(start_stop_button, [reset_state, stopped_state], function(){ this.data.display = display_running; }, running_state);
         r.add_transition(start_stop_button, running_state, function(){ this.data.display = display_stopped; }, stopped_state);
@@ -55,7 +55,7 @@
         fsm = fsm_factory();
         expect(3);
         equal(fsm.current_state, off_state, 'Expected "' + off_state + '", was ' + fsm.current_state);
-        fsm.send(power_button);
+        fsm.send_event(power_button);
         equal(fsm.current_state, reset_state, 'Expected "' + reset_state + '", was ' + fsm.current_state);
         equal(fsm.data.display, display_reset, 'Expected "' + display_reset + '", was ' + fsm.data.display);
       });
@@ -63,10 +63,10 @@
       module("When starting the Reset Stop Watch");
       test('Goes to "' + running_state + '" and display is "' + display_running + '"', function() {
         fsm = fsm_factory();
-        fsm.send(power_button);
+        fsm.send_event(power_button);
         expect(3);
         equal(fsm.current_state, reset_state, 'Expected "' + reset_state + '", was ' + fsm.current_state);
-        fsm.send(start_stop_button);
+        fsm.send_event(start_stop_button);
         equal(fsm.current_state, running_state, 'Expected "' + running_state + '", was ' + fsm.current_state);
         equal(fsm.data.display, display_running, 'Expected "' + display_running + '", was ' + fsm.data.display);
       });
@@ -74,11 +74,11 @@
       module("When stopping the running Stop Watch");
       test('Goes to "' + stopped_state + '" and display is "' + display_stopped + '"', function() {
         fsm = fsm_factory();
-        fsm.send(power_button);
-        fsm.send(start_stop_button);
+        fsm.send_event(power_button);
+        fsm.send_event(start_stop_button);
         expect(3);
         equal(fsm.current_state, running_state, 'Expected "' + running_state + '", was ' + fsm.current_state);
-        fsm.send(start_stop_button);
+        fsm.send_event(start_stop_button);
         equal(fsm.current_state, stopped_state, 'Expected "' + stopped_state + '", was ' + fsm.current_state);
         equal(fsm.data.display, display_stopped, 'Expected "' + display_stopped + '", was ' + fsm.data.display);
       });
@@ -86,12 +86,12 @@
       module("When starting the stopped Stop Watch");
       test('Goes to "' + running_state + '" and display is "' + display_running + '"', function() {
         fsm = fsm_factory();
-        fsm.send(power_button);
-        fsm.send(start_stop_button);
-        fsm.send(start_stop_button);
+        fsm.send_event(power_button);
+        fsm.send_event(start_stop_button);
+        fsm.send_event(start_stop_button);
         expect(3);
         equal(fsm.current_state, stopped_state, 'Expected "' + stopped_state + '", was ' + fsm.current_state);
-        fsm.send(start_stop_button);
+        fsm.send_event(start_stop_button);
         equal(fsm.current_state, running_state, 'Expected "' + running_state + '", was ' + fsm.current_state);
         equal(fsm.data.display, display_running, 'Expected "' + display_running + '", was ' + fsm.data.display);
       });
@@ -99,12 +99,12 @@
       module("When resetting the stopped Stop Watch");
       test('Goes to "' + reset_state + '" and display is "' + display_reset + '"', function() {
         fsm = fsm_factory();
-        fsm.send(power_button);
-        fsm.send(start_stop_button);
-        fsm.send(start_stop_button);
+        fsm.send_event(power_button);
+        fsm.send_event(start_stop_button);
+        fsm.send_event(start_stop_button);
         equal(fsm.current_state, stopped_state, 'Expected "' + stopped_state + '", was ' + fsm.current_state);
         expect(3);
-        fsm.send(reset_button);
+        fsm.send_event(reset_button);
         equal(fsm.current_state, reset_state, 'Expected "' + reset_state + '", was ' + fsm.current_state);
         equal(fsm.data.display, display_reset, 'Expected "' + display_reset + '", was ' + fsm.data.display);
       });
@@ -112,10 +112,10 @@
       module("When turning off the reset Stop Watch");
       test('Goes to "' + off_state + '" and display is "' + display_off + '"', function() {
         fsm = fsm_factory();
-        fsm.send(power_button);
+        fsm.send_event(power_button);
         expect(3);
         equal(fsm.current_state, reset_state, 'Expected "' + reset_state + '", was ' + fsm.current_state);
-        fsm.send(power_button);
+        fsm.send_event(power_button);
         equal(fsm.current_state, off_state, 'Expected "' + off_state + '", was ' + fsm.current_state);
         equal(fsm.data.display, display_off, 'Expected "' + display_off + '", was ' + fsm.data.display);
       });
@@ -123,11 +123,11 @@
       module("When turning off the running Stop Watch");
       test('Goes to "' + off_state + '" and display is "' + display_off + '"', function() {
         fsm = fsm_factory();
-        fsm.send(power_button);
-        fsm.send(start_stop_button);
+        fsm.send_event(power_button);
+        fsm.send_event(start_stop_button);
         expect(3);
         equal(fsm.current_state, running_state, 'Expected "' + running_state + '", was ' + fsm.current_state);
-        fsm.send(power_button);
+        fsm.send_event(power_button);
         equal(fsm.current_state, off_state, 'Expected "' + off_state + '", was ' + fsm.current_state);
         equal(fsm.data.display, display_off, 'Expected "' + display_off + '", was ' + fsm.data.display);
       });
@@ -135,12 +135,12 @@
       module("When turning off the stopped Stop Watch");
       test('Goes to "' + off_state + '" and display is "' + display_off + '"', function() {
         fsm = fsm_factory();
-        fsm.send(power_button);
-        fsm.send(start_stop_button);
-        fsm.send(start_stop_button);
+        fsm.send_event(power_button);
+        fsm.send_event(start_stop_button);
+        fsm.send_event(start_stop_button);
         expect(3);
         equal(fsm.current_state, stopped_state, 'Expected "' + stopped_state + '", was ' + fsm.current_state);
-        fsm.send(power_button);
+        fsm.send_event(power_button);
         equal(fsm.current_state, off_state, 'Expected "' + off_state + '", was ' + fsm.current_state);
         equal(fsm.data.display, display_off, 'Expected "' + display_off + '", was ' + fsm.data.display);
       });
@@ -148,11 +148,11 @@
       module("When resetting the running Stop Watch");
       test('Nothing changes', function() {
         fsm = fsm_factory();
-        fsm.send(power_button);
-        fsm.send(start_stop_button);
+        fsm.send_event(power_button);
+        fsm.send_event(start_stop_button);
         expect(3);
         equal(fsm.current_state, running_state, 'Expected "' + running_state + '", was ' + fsm.current_state);
-        fsm.send(reset_button);
+        fsm.send_event(reset_button);
         equal(fsm.current_state, running_state, 'Expected "' + running_state + '", was ' + fsm.current_state);
         equal(fsm.data.display, display_running, 'Expected "' + display_running + '", was ' + fsm.data.display);
       });
@@ -160,10 +160,10 @@
       module("When resetting the reset Stop Watch");
       test('Nothing changes', function() {
         fsm = fsm_factory();
-        fsm.send(power_button);
+        fsm.send_event(power_button);
         expect(3);
         equal(fsm.current_state, reset_state, 'Expected "' + reset_state + '", was ' + fsm.current_state);
-        fsm.send(reset_button);
+        fsm.send_event(reset_button);
         equal(fsm.current_state, reset_state, 'Expected "' + reset_state + '", was ' + fsm.current_state);
         equal(fsm.data.display, display_reset, 'Expected "' + display_reset + '", was ' + fsm.data.display);
       });
@@ -176,7 +176,7 @@
         fsm = fsm_factory();
         expect(1);
         for (var i = 0; i < number_of_iterations; i++) {
-          fsm.send(known_events[Math.floor(Math.random() * known_events_count)]);
+          fsm.send_event(known_events[Math.floor(Math.random() * known_events_count)]);
         }
         ok(true, "No exceptions were raised");
       });
@@ -185,7 +185,7 @@
       test('The state machine should raise an exception', function() {
         fsm = fsm_factory();
         raises(
-          function() { fsm.send("unknown event"); },
+          function() { fsm.send_event("unknown event"); },
           "must throw error to pass"
         );
       });
