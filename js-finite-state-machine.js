@@ -108,6 +108,11 @@ FSM.prototype.send_event = function(event, event_data) {
   
   if (this.debug && window.console && window.console.log) {
     debug_msg = [];
+    if (this.data.name) {
+      debug_msg.push(this.data.name + ': ');
+    } else {
+      debug_msg.push('FSM: ');
+    }
     debug_msg.push(event + ': ');
     debug_msg.push(current_state + ' -> ' + new_state);
     if (event_data) { debug_msg.push('; with event data'); }
