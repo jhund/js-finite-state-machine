@@ -76,18 +76,14 @@ FSM.prototype.set_default_transition = function(callback, next_state) {
 // return [Transition] the matching transition. [Callback, NextState]
 FSM.prototype.get_transition = function(event, state) {
   var r;
-  if (r = this.state_transitions[[event, state]]) {
-    return r;
-  } else if (r = this.state_transitions_from_any_state[event]) {
-    if (!r[1]) { r[1] = this.current_state; } // stay in current_state if no next_state given
-    return r;
-  } else if (r = this.default_transition) {
-    if (!r[1]) { r[1] = this.current_state; } // stay in current_state if no next_state given
-    return r;
+  r = this.state_transitions[[event, state]] || // first try "specific"
+      this.state_transitions_from_any_state[event] || // then try "from any state"
+      this.default_transition // lastly try default transition
+  if (r) {
+    // return [callback, new_state] tuple. Stay in current_state if no next_state given
+    return [r[0], r[1] || this.current_state]
   } else {
-    throw Error(
-    "Transition is undefined: (" + event + ", " + state + ")"
-    );
+    throw Error("Transition is undefined: (" + event + ", " + state + ")");
   }
 };
 
