@@ -2,6 +2,7 @@
 // 
 // A simple finite state machine library for code flow and transition control.
 // 
+// https://github.com/jhund/js-finite-state-machine
 // Copyright (c)2011 Jo Hund, ClearCove Software Inc.
 // Based originally on FSM by Anthony Blackshaw <ant@getme.co.uk> (www.getme.co.uk) Copyright (c)2008
 
