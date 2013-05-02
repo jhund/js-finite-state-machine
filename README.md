@@ -157,4 +157,5 @@ a "Transition is undefined" error.
 
 
 JS Finite State Machine is Copyright (c) 2011 by Jo Hund, ClearCove Software Inc.
+
 JS Finite State Machine is licensed under the MIT license.
