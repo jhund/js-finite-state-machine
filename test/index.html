@@ -6,192 +6,192 @@
     <script type="text/javascript" src="qunit.js"></script>
     <script type="text/javascript">
       // Test data
-      var off_state = "Power Off",
-          on_state = "Power On",
-          initial_state = off_state,
-          reset_state = "Reset",
-          running_state = "Running",
-          stopped_state = "Stopped",
-          power_button = "Press Power Button",
-          start_stop_button = "Press Start/Stop Button",
-          reset_button = "Press Reset Button",
-          display_off = "blank",
-          display_reset = "00:00:00",
-          display_running = "00:01:RR",
-          display_stopped = "00:03:34",
-          state_machine_data = { name: "Jo's Stop Watch", display: display_off };
-      
+      var offState = "Power Off",
+          onState = "Power On",
+          initialState = offState,
+          resetState = "Reset",
+          runningState = "Running",
+          stoppedState = "Stopped",
+          powerButton = "Press Power Button",
+          startStopButton = "Press Start/Stop Button",
+          resetButton = "Press Reset Button",
+          displayOff = "blank",
+          displayReset = "00:00:00",
+          displayRunning = "00:01:RR",
+          displayStopped = "00:03:34",
+          stateMachineData = { name: "Jo's Stop Watch", display: displayOff };
+
       // State machine under test
       var fsm = null;
-      
+
       // Instantiates a new FSM
-      var fsm_factory = function() {
+      var fsmFactory = function() {
         var r = new FSM(
-          initial_state,
-          { name: state_machine_data.name, display: state_machine_data.display }
+          initialState,
+          { name: stateMachineData.name, display: stateMachineData.display }
         );
         // "specific" transitions
-        r.add_transition(power_button, off_state, function() { this.send_event(reset_button); }, on_state);
-        r.add_transition(reset_button, [on_state, stopped_state], function() { this.data.display = display_reset; }, reset_state);
-        r.add_transition(start_stop_button, [reset_state, stopped_state], function(){ this.data.display = display_running; }, running_state);
-        r.add_transition(start_stop_button, running_state, function(){ this.data.display = display_stopped; }, stopped_state);
+        r.addTransition(powerButton, offState, function() { this.sendEvent(resetButton); }, onState);
+        r.addTransition(resetButton, [onState, stoppedState], function() { this.data.display = displayReset; }, resetState);
+        r.addTransition(startStopButton, [resetState, stoppedState], function(){ this.data.display = displayRunning; }, runningState);
+        r.addTransition(startStopButton, runningState, function(){ this.data.display = displayStopped; }, stoppedState);
         // "from any state" transitions
-        r.add_transition_from_any_state(power_button, function() { this.data.display = display_off; }, off_state);
-        r.add_transition_from_any_state([start_stop_button, reset_button], null); // don't provide next state, so that nothing changes
+        r.addTransitionFromAnyState(powerButton, function() { this.data.display = displayOff; }, offState);
+        r.addTransitionFromAnyState([startStopButton, resetButton], null); // don't provide next state, so that nothing changes
         return r;
       };
-      
+
       // QUnit tests
       module("A Brand New Stop Watch");
-      test('Is turned off and the display is "' + display_off + '"', function() {
-        fsm = fsm_factory();
+      test('Is turned off and the display is "' + displayOff + '"', function() {
+        fsm = fsmFactory();
         expect(2);
-        equal(fsm.current_state, initial_state, 'Expected "' + initial_state + '", was ' + fsm.current_state);
-        equal(fsm.data.display, display_off, 'Expected "' + display_off + '", was ' + fsm.data.display);
+        equal(fsm.currentState, initialState, 'Expected "' + initialState + '", was ' + fsm.currentState);
+        equal(fsm.data.display, displayOff, 'Expected "' + displayOff + '", was ' + fsm.data.display);
       });
-      
+
       module("When turning on the Stop Watch");
-      test('Turns on, goes to "' + reset_state + '" and display is "' + display_reset + '"', function() {
-        fsm = fsm_factory();
+      test('Turns on, goes to "' + resetState + '" and display is "' + displayReset + '"', function() {
+        fsm = fsmFactory();
         expect(3);
-        equal(fsm.current_state, off_state, 'Expected "' + off_state + '", was ' + fsm.current_state);
-        fsm.send_event(power_button);
-        equal(fsm.current_state, reset_state, 'Expected "' + reset_state + '", was ' + fsm.current_state);
-        equal(fsm.data.display, display_reset, 'Expected "' + display_reset + '", was ' + fsm.data.display);
+        equal(fsm.currentState, offState, 'Expected "' + offState + '", was ' + fsm.currentState);
+        fsm.sendEvent(powerButton);
+        equal(fsm.currentState, resetState, 'Expected "' + resetState + '", was ' + fsm.currentState);
+        equal(fsm.data.display, displayReset, 'Expected "' + displayReset + '", was ' + fsm.data.display);
       });
 
       module("When starting the Reset Stop Watch");
-      test('Goes to "' + running_state + '" and display is "' + display_running + '"', function() {
-        fsm = fsm_factory();
-        fsm.send_event(power_button);
+      test('Goes to "' + runningState + '" and display is "' + displayRunning + '"', function() {
+        fsm = fsmFactory();
+        fsm.sendEvent(powerButton);
         expect(3);
-        equal(fsm.current_state, reset_state, 'Expected "' + reset_state + '", was ' + fsm.current_state);
-        fsm.send_event(start_stop_button);
-        equal(fsm.current_state, running_state, 'Expected "' + running_state + '", was ' + fsm.current_state);
-        equal(fsm.data.display, display_running, 'Expected "' + display_running + '", was ' + fsm.data.display);
+        equal(fsm.currentState, resetState, 'Expected "' + resetState + '", was ' + fsm.currentState);
+        fsm.sendEvent(startStopButton);
+        equal(fsm.currentState, runningState, 'Expected "' + runningState + '", was ' + fsm.currentState);
+        equal(fsm.data.display, displayRunning, 'Expected "' + displayRunning + '", was ' + fsm.data.display);
       });
 
       module("When stopping the running Stop Watch");
-      test('Goes to "' + stopped_state + '" and display is "' + display_stopped + '"', function() {
-        fsm = fsm_factory();
-        fsm.send_event(power_button);
-        fsm.send_event(start_stop_button);
+      test('Goes to "' + stoppedState + '" and display is "' + displayStopped + '"', function() {
+        fsm = fsmFactory();
+        fsm.sendEvent(powerButton);
+        fsm.sendEvent(startStopButton);
         expect(3);
-        equal(fsm.current_state, running_state, 'Expected "' + running_state + '", was ' + fsm.current_state);
-        fsm.send_event(start_stop_button);
-        equal(fsm.current_state, stopped_state, 'Expected "' + stopped_state + '", was ' + fsm.current_state);
-        equal(fsm.data.display, display_stopped, 'Expected "' + display_stopped + '", was ' + fsm.data.display);
+        equal(fsm.currentState, runningState, 'Expected "' + runningState + '", was ' + fsm.currentState);
+        fsm.sendEvent(startStopButton);
+        equal(fsm.currentState, stoppedState, 'Expected "' + stoppedState + '", was ' + fsm.currentState);
+        equal(fsm.data.display, displayStopped, 'Expected "' + displayStopped + '", was ' + fsm.data.display);
       });
 
       module("When starting the stopped Stop Watch");
-      test('Goes to "' + running_state + '" and display is "' + display_running + '"', function() {
-        fsm = fsm_factory();
-        fsm.send_event(power_button);
-        fsm.send_event(start_stop_button);
-        fsm.send_event(start_stop_button);
+      test('Goes to "' + runningState + '" and display is "' + displayRunning + '"', function() {
+        fsm = fsmFactory();
+        fsm.sendEvent(powerButton);
+        fsm.sendEvent(startStopButton);
+        fsm.sendEvent(startStopButton);
         expect(3);
-        equal(fsm.current_state, stopped_state, 'Expected "' + stopped_state + '", was ' + fsm.current_state);
-        fsm.send_event(start_stop_button);
-        equal(fsm.current_state, running_state, 'Expected "' + running_state + '", was ' + fsm.current_state);
-        equal(fsm.data.display, display_running, 'Expected "' + display_running + '", was ' + fsm.data.display);
+        equal(fsm.currentState, stoppedState, 'Expected "' + stoppedState + '", was ' + fsm.currentState);
+        fsm.sendEvent(startStopButton);
+        equal(fsm.currentState, runningState, 'Expected "' + runningState + '", was ' + fsm.currentState);
+        equal(fsm.data.display, displayRunning, 'Expected "' + displayRunning + '", was ' + fsm.data.display);
       });
 
       module("When resetting the stopped Stop Watch");
-      test('Goes to "' + reset_state + '" and display is "' + display_reset + '"', function() {
-        fsm = fsm_factory();
-        fsm.send_event(power_button);
-        fsm.send_event(start_stop_button);
-        fsm.send_event(start_stop_button);
-        equal(fsm.current_state, stopped_state, 'Expected "' + stopped_state + '", was ' + fsm.current_state);
+      test('Goes to "' + resetState + '" and display is "' + displayReset + '"', function() {
+        fsm = fsmFactory();
+        fsm.sendEvent(powerButton);
+        fsm.sendEvent(startStopButton);
+        fsm.sendEvent(startStopButton);
+        equal(fsm.currentState, stoppedState, 'Expected "' + stoppedState + '", was ' + fsm.currentState);
         expect(3);
-        fsm.send_event(reset_button);
-        equal(fsm.current_state, reset_state, 'Expected "' + reset_state + '", was ' + fsm.current_state);
-        equal(fsm.data.display, display_reset, 'Expected "' + display_reset + '", was ' + fsm.data.display);
+        fsm.sendEvent(resetButton);
+        equal(fsm.currentState, resetState, 'Expected "' + resetState + '", was ' + fsm.currentState);
+        equal(fsm.data.display, displayReset, 'Expected "' + displayReset + '", was ' + fsm.data.display);
       });
-      
+
       module("When turning off the reset Stop Watch");
-      test('Goes to "' + off_state + '" and display is "' + display_off + '"', function() {
-        fsm = fsm_factory();
-        fsm.send_event(power_button);
+      test('Goes to "' + offState + '" and display is "' + displayOff + '"', function() {
+        fsm = fsmFactory();
+        fsm.sendEvent(powerButton);
         expect(3);
-        equal(fsm.current_state, reset_state, 'Expected "' + reset_state + '", was ' + fsm.current_state);
-        fsm.send_event(power_button);
-        equal(fsm.current_state, off_state, 'Expected "' + off_state + '", was ' + fsm.current_state);
-        equal(fsm.data.display, display_off, 'Expected "' + display_off + '", was ' + fsm.data.display);
+        equal(fsm.currentState, resetState, 'Expected "' + resetState + '", was ' + fsm.currentState);
+        fsm.sendEvent(powerButton);
+        equal(fsm.currentState, offState, 'Expected "' + offState + '", was ' + fsm.currentState);
+        equal(fsm.data.display, displayOff, 'Expected "' + displayOff + '", was ' + fsm.data.display);
       });
-      
+
       module("When turning off the running Stop Watch");
-      test('Goes to "' + off_state + '" and display is "' + display_off + '"', function() {
-        fsm = fsm_factory();
-        fsm.send_event(power_button);
-        fsm.send_event(start_stop_button);
+      test('Goes to "' + offState + '" and display is "' + displayOff + '"', function() {
+        fsm = fsmFactory();
+        fsm.sendEvent(powerButton);
+        fsm.sendEvent(startStopButton);
         expect(3);
-        equal(fsm.current_state, running_state, 'Expected "' + running_state + '", was ' + fsm.current_state);
-        fsm.send_event(power_button);
-        equal(fsm.current_state, off_state, 'Expected "' + off_state + '", was ' + fsm.current_state);
-        equal(fsm.data.display, display_off, 'Expected "' + display_off + '", was ' + fsm.data.display);
+        equal(fsm.currentState, runningState, 'Expected "' + runningState + '", was ' + fsm.currentState);
+        fsm.sendEvent(powerButton);
+        equal(fsm.currentState, offState, 'Expected "' + offState + '", was ' + fsm.currentState);
+        equal(fsm.data.display, displayOff, 'Expected "' + displayOff + '", was ' + fsm.data.display);
       });
 
       module("When turning off the stopped Stop Watch");
-      test('Goes to "' + off_state + '" and display is "' + display_off + '"', function() {
-        fsm = fsm_factory();
-        fsm.send_event(power_button);
-        fsm.send_event(start_stop_button);
-        fsm.send_event(start_stop_button);
+      test('Goes to "' + offState + '" and display is "' + displayOff + '"', function() {
+        fsm = fsmFactory();
+        fsm.sendEvent(powerButton);
+        fsm.sendEvent(startStopButton);
+        fsm.sendEvent(startStopButton);
         expect(3);
-        equal(fsm.current_state, stopped_state, 'Expected "' + stopped_state + '", was ' + fsm.current_state);
-        fsm.send_event(power_button);
-        equal(fsm.current_state, off_state, 'Expected "' + off_state + '", was ' + fsm.current_state);
-        equal(fsm.data.display, display_off, 'Expected "' + display_off + '", was ' + fsm.data.display);
+        equal(fsm.currentState, stoppedState, 'Expected "' + stoppedState + '", was ' + fsm.currentState);
+        fsm.sendEvent(powerButton);
+        equal(fsm.currentState, offState, 'Expected "' + offState + '", was ' + fsm.currentState);
+        equal(fsm.data.display, displayOff, 'Expected "' + displayOff + '", was ' + fsm.data.display);
       });
 
       module("When resetting the running Stop Watch");
       test('Nothing changes', function() {
-        fsm = fsm_factory();
-        fsm.send_event(power_button);
-        fsm.send_event(start_stop_button);
+        fsm = fsmFactory();
+        fsm.sendEvent(powerButton);
+        fsm.sendEvent(startStopButton);
         expect(3);
-        equal(fsm.current_state, running_state, 'Expected "' + running_state + '", was ' + fsm.current_state);
-        fsm.send_event(reset_button);
-        equal(fsm.current_state, running_state, 'Expected "' + running_state + '", was ' + fsm.current_state);
-        equal(fsm.data.display, display_running, 'Expected "' + display_running + '", was ' + fsm.data.display);
+        equal(fsm.currentState, runningState, 'Expected "' + runningState + '", was ' + fsm.currentState);
+        fsm.sendEvent(resetButton);
+        equal(fsm.currentState, runningState, 'Expected "' + runningState + '", was ' + fsm.currentState);
+        equal(fsm.data.display, displayRunning, 'Expected "' + displayRunning + '", was ' + fsm.data.display);
       });
-      
+
       module("When resetting the reset Stop Watch");
       test('Nothing changes', function() {
-        fsm = fsm_factory();
-        fsm.send_event(power_button);
+        fsm = fsmFactory();
+        fsm.sendEvent(powerButton);
         expect(3);
-        equal(fsm.current_state, reset_state, 'Expected "' + reset_state + '", was ' + fsm.current_state);
-        fsm.send_event(reset_button);
-        equal(fsm.current_state, reset_state, 'Expected "' + reset_state + '", was ' + fsm.current_state);
-        equal(fsm.data.display, display_reset, 'Expected "' + display_reset + '", was ' + fsm.data.display);
+        equal(fsm.currentState, resetState, 'Expected "' + resetState + '", was ' + fsm.currentState);
+        fsm.sendEvent(resetButton);
+        equal(fsm.currentState, resetState, 'Expected "' + resetState + '", was ' + fsm.currentState);
+        equal(fsm.data.display, displayReset, 'Expected "' + displayReset + '", was ' + fsm.data.display);
       });
-      
+
       module("When hitting the state machine with a random sequence of known events");
       test('The state machine should not raise any exceptions', function() {
-        var number_of_iterations = 1,
-            known_events = [power_button, reset_button, start_stop_button],
-            known_events_count = known_events.length;
-        fsm = fsm_factory();
+        var numberOfIterations = 1,
+            knownEvents = [powerButton, resetButton, startStopButton],
+            knownEventsCount = knownEvents.length;
+        fsm = fsmFactory();
         expect(1);
-        for (var i = 0; i < number_of_iterations; i++) {
-          fsm.send_event(known_events[Math.floor(Math.random() * known_events_count)]);
+        for (var i = 0; i < numberOfIterations; i++) {
+          fsm.sendEvent(knownEvents[Math.floor(Math.random() * knownEventsCount)]);
         }
         ok(true, "No exceptions were raised");
       });
 
       module("When sending an undefined event to the state machine");
       test('The state machine should raise an exception', function() {
-        fsm = fsm_factory();
+        fsm = fsmFactory();
         raises(
-          function() { fsm.send_event("unknown event"); },
+          function() { fsm.sendEvent("unknown event"); },
           "must throw error to pass"
         );
       });
 
     </script>
-    
+
     <title>js-finite-state-machine tests</title>
   </head>
   <body>
